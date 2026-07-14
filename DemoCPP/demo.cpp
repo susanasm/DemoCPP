@@ -1220,6 +1220,23 @@ struct X
     }
 };
  
+/**
+ * @brief Suma en Paralelo los Elementos de un Rango.
+ *
+ * El metodo Divide Recursivamente el rango en dos mitades. Cuando el rango contiene menos
+ * de 1000 elementos, realiza la suma secuencialmente con `std::accumulate`; en
+ * caso contrario, procesa una mitad mediante `std::async` y la otra en el hilo
+ * actual.
+ *
+ * @tparam RandomIt Tipo de iterador de acceso aleatorio.
+ * @param beg Iterador al primer elemento del rango.
+ * @param end Iterador situado después del último elemento del rango.
+ * @return Suma de los elementos del rango, representada como un valor `int`.
+ * @pre `beg` y `end` delimitan un rango válido y pertenecen a la misma secuencia.
+ * @note Las excepciones producidas por `std::async`, `std::accumulate` o la
+ *       tarea asíncrona se propagan al llamador.
+ * Lineal, O(n), respecto al número de elementos del rango.
+ */
 template <typename RandomIt>
 int parallel_sum(RandomIt beg, RandomIt end)
 {
@@ -1534,6 +1551,22 @@ void DemoForeachInvoke()
             obj, "New extra");             // object to call memfunc() for
 }
 
+/**
+ * @brief Invoca un Objeto Invocable con una cantidad variable de argumentos.
+ *
+ * Utiliza `std::invoke` para admitir funciones, objetos función, expresiones
+ * lambda y punteros a miembros. Mediante `if constexpr`, distingue entre
+ * invocaciones que retornan `void` y aquellas que producen un resultado.
+ *
+ * @tparam Callable Tipo del objeto invocable.
+ * @tparam Args Tipos de los argumentos enviados al objeto invocable.
+ * @param func Función u objeto invocable que se ejecutará.
+ * @param args Argumentos reenviados a @p func conservando su categoría de valor.
+ * @return El resultado de la invocación cuando no es `void`; no retorna un valor
+ *         cuando el tipo de retorno de @p func es `void`.
+ * @pre @p func debe poder invocarse con los argumentos proporcionados.
+ * @note Cualquier excepción generada por @p func se propaga al llamador.
+ */
 template<typename Callable, typename... Args>
 decltype(auto) call(Callable func, Args&&... args)
 {
